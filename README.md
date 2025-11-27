@@ -86,6 +86,36 @@ notez --read
 - `Enter` → Muestra 5 líneas más
 - `/q` → Salir del modo lectura
 
+### 🔀 Modo Dual (Split-Screen)
+
+```bash
+# Inicia modo dual con panel dividido
+notez -dual
+# o
+notez --dual
+```
+
+**Interfaz split-screen:**
+
+```
+╭── noteZ DUAL MODE ── Panel de Lectura (tiempo real) ──╮
+│   1 │ [27-11-2025 | 10:30] Primera nota guardada      │
+│   2 │ [27-11-2025 | 10:31] Segunda nota automática    │
+│   3 │ [27-11-2025 | 10:32] Nueva nota aparece aquí    │
+│                    (80% del terminal)                 │
+╰───────────────────────────────────────────────────────╯
+╭── Panel de Escritura ── /h ayuda ── /q salir ──╮
+[noteZ DUAL] > Escribe tu nota aquí...
+              (20% del terminal)
+```
+
+**Características del Modo Dual:**
+
+- 📊 **Panel Superior (80%)**: Muestra las últimas notas en tiempo real
+- ✏️ **Panel Inferior (20%)**: Área de escritura con prompt
+- 🔄 **Actualización Automática**: Al guardar una nota, aparece arriba instantáneamente
+- ⚙️ **Configurable**: Ratio de paneles ajustable en código (`DUAL_READ_PANEL_RATIO`)
+
 ## 🎮 Comandos Especiales
 
 | Comando | Función             | Descripción                      |
@@ -118,18 +148,24 @@ notez --read
 ### Stack Tecnológico
 
 - **Python 3.x** puro (sin dependencias externas)
-- **Librerías estándar**: `sys`, `os`, `datetime`
+- **Librerías estándar**: `sys`, `os`, `datetime`, `shutil`, `argparse`
 - **Encoding**: UTF-8 para soporte completo de caracteres
 - **Compatibilidad**: Windows PowerShell 7 + Termux Android
 
 ### Arquitectura Modular
 
 ```python
-get_path()      # Detección automática de plataforma
-write_line()    # Escritura con timestamp y comandos especiales
-read_notes()    # Lectura paginada eficiente
-show_help()     # Sistema de ayuda integrado
-main()          # Orquestador principal
+get_path()              # Detección automática de plataforma
+get_terminal_size()     # Obtiene dimensiones del terminal
+clear_screen()          # Limpieza de pantalla portable
+move_cursor()           # Posicionamiento de cursor ANSI
+clear_line()            # Limpieza de línea actual
+write_line()            # Escritura con timestamp y comandos especiales
+read_notes()            # Lectura paginada eficiente
+run_dual_mode()         # Modo dual split-screen
+render_dual_read_panel()# Renderizado del panel de lectura
+show_help()             # Sistema de ayuda integrado
+main()                  # Orquestador principal
 ```
 
 ### Gestión de Memoria
@@ -200,14 +236,15 @@ Este proyecto incluye un **agente de desarrollo especializado** (`noteZ-Agent.ch
 
 ## 🔄 Roadmap
 
-### ✅ Versión Actual (1.0)
+### ✅ Versión Actual (1.1.0)
 
 - [X] Modo grabación continua con timestamp
-- [X] Comandos especiales (/n, /n=, /q, /h)
+- [X] Comandos especiales (/n, /n=, /q, /h, /r)
 - [X] Modo lectura paginada
 - [X] Detección automática de plataforma
 - [X] Manejo seguro de interrupciones
 - [X] Sistema de ayuda integrado
+- [X] **Modo Dual** (`-dual`/`--dual`): Split-screen con lectura en tiempo real
 
 ### 🚧 Próximas Funcionalidades
 

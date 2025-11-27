@@ -5,13 +5,13 @@
 ## 📊 Información del Proyecto
 
 - **Nombre**: noteZ
-- **Versión Actual**: 1.0.0-FUSION
+- **Versión Actual**: 1.1.0-FUSION
 - **Tipo**: CLI Application (Command Line Interface)
 - **Lenguaje**: Python 3.x
 - **Plataformas**: Windows PowerShell 7 + Android Termux
 - **Filosofía**: Minimalismo + Zero-friction + Portabilidad
 - **Fecha de Inicio**: 2025-10-24
-- **Última Actualización**: 2025-10-24
+- **Última Actualización**: 2025-11-27
 
 ## 🎯 Propósito y Visión
 
@@ -24,16 +24,26 @@ Eliminar completamente la fricción entre tener una idea y guardarla permanentem
 3. **Notas de reunión**: Registro temporal durante llamadas
 4. **Debugging logs**: Anotar hallazgos durante troubleshooting
 5. **Capture rápido**: Ideas que no pueden perderse
+6. **Sesión dual**: Ver historial mientras escribes nuevas notas
 
 ## 🏗️ Arquitectura Actual
 
 ### Módulos Principales
 ```python
-def get_path()          # Detección automática de plataforma
-def write_line()        # Escritura inmediata con timestamp
-def read_notes()        # Lectura paginada eficiente
-def show_help()         # Sistema de ayuda integrado (/h)
-def main()              # Orquestador principal
+def get_path()              # Detección automática de plataforma
+def get_terminal_size()     # Obtiene dimensiones del terminal
+def clear_screen()          # Limpieza de pantalla portable (ANSI)
+def move_cursor()           # Posicionamiento de cursor ANSI
+def clear_line()            # Limpieza de línea actual
+def write_line()            # Escritura inmediata con timestamp
+def read_notes()            # Lectura paginada eficiente
+def run_dual_mode()         # Modo dual split-screen
+def render_dual_read_panel()# Renderizado del panel de lectura
+def show_help()             # Sistema de ayuda integrado (/h)
+def main()                  # Orquestador principal
+
+# Constante configurable
+DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
 ```
 
 ### Patrones de Diseño Establecidos
@@ -42,6 +52,8 @@ def main()              # Orquestador principal
 3. **Comandos Especiales**: Prefijo `/` para funciones especiales
 4. **Escritura Inmediata**: `open(path, 'a', encoding='utf-8')` append mode
 5. **Lectura Paginada**: Eficiencia de memoria O(1) por página
+6. **Secuencias ANSI**: Control de terminal portable (PowerShell 7 + Termux)
+7. **Split-Screen**: División de terminal con ratio configurable
 
 ### Rutas por Plataforma
 - **Windows**: `C:\Users\<Usuario>\notez\notas.txt`
@@ -56,6 +68,7 @@ def main()              # Orquestador principal
 - **Comandos especiales**:
   - `/n` → Línea vacía (separador mínimo)
   - `/n=` → Línea decorativa `==========`
+  - `/r` → Modo lectura temporal desde grabación
   - `/h` → Menú de ayuda **[AÑADIDO 2025-10-24]**
   - `/q` → Salida segura con guardado
 
@@ -65,6 +78,16 @@ def main()              # Orquestador principal
 - **Paginación**: 10 líneas iniciales, +5 por Enter
 - **Preservación de contexto**: Últimas 5 líneas siempre visibles
 - **Eficiencia**: No carga archivo completo en memoria
+
+### Modo Dual (Split-Screen) **[AÑADIDO 2025-11-27]**
+- **Activación**: `notez -dual` o `notez --dual`
+- **Prompt**: `[noteZ DUAL] >`
+- **Panel Superior (80%)**: Muestra últimas notas en tiempo real
+- **Panel Inferior (20%)**: Área de escritura con prompt
+- **Actualización Automática**: Al guardar, la nota aparece arriba instantáneamente
+- **Ratio Configurable**: `DUAL_READ_PANEL_RATIO = 0.80` (ajustable en código)
+- **Secuencias ANSI**: Compatible con Windows PowerShell 7 y Termux
+- **Comandos soportados**: Todos los comandos especiales (/n, /n=, /h, /q)
 
 ### Manejo de Sistema
 - **Ctrl+C**: Guardado automático antes de salir
@@ -76,7 +99,7 @@ def main()              # Orquestador principal
 
 ```
 noteZ/
-├── notez.py                           # ✅ IMPLEMENTADO 2025-10-24 - Aplicación principal
+├── notez.py                           # ✅ IMPLEMENTADO - Aplicación principal (v1.1.0)
 ├── README.md                          # ✅ Documentación completa
 ├── LICENSE                            # [PENDIENTE] - MIT License
 ├── noteZ prototype.md                 # ✅ Documento de diseño original
@@ -89,6 +112,33 @@ noteZ/
 ## 📈 Evolución del Proyecto
 
 ### Changelog Detallado
+
+#### 2025-11-27 - Modo Dual (Split-Screen) Implementado
+**TIPO**: NUEVA FUNCIONALIDAD MAYOR - UPGRADE SIGNIFICATIVO
+- ✅ **Modo Dual implementado**: Interfaz split-screen con `-dual`/`--dual`
+- ✅ **Panel de Lectura (80%)**: Muestra últimas notas en tiempo real
+- ✅ **Panel de Escritura (20%)**: Área de entrada con prompt `[noteZ DUAL] >`
+- ✅ **Actualización en tiempo real**: Las notas aparecen arriba instantáneamente
+- ✅ **Ratio configurable**: `DUAL_READ_PANEL_RATIO = 0.80` ajustable en código
+- ✅ **Nuevas funciones helper**: `get_terminal_size()`, `clear_screen()`, `move_cursor()`, `clear_line()`
+- ✅ **Funciones principales**: `run_dual_mode()`, `render_dual_read_panel()`
+- ✅ **Secuencias ANSI portables**: Compatible con PowerShell 7 y Termux
+- ✅ **Comandos soportados**: Todos los comandos especiales funcionan en modo dual
+- ✅ **Documentación actualizada**: README.md, show_help(), argparser
+- ✅ **Memoria extendida actualizada**: Este documento con todos los cambios
+
+**DECISIONES ARQUITECTÓNICAS v1.1.0**:
+1. Uso de secuencias ANSI estándar para control de terminal
+2. `shutil.get_terminal_size()` para detección portable de tamaño
+3. Ratio configurable mediante constante para flexibilidad
+4. Refresh completo de pantalla para evitar artefactos visuales
+5. Reutilización de lógica de escritura existente
+
+**IMPACTO EN SISTEMA**:
+- Nueva forma de interacción más visual y productiva
+- Mantiene compatibilidad 100% con modos existentes
+- Sin dependencias externas adicionales
+- Versión actualizada a 1.1.0-FUSION
 
 #### 2025-10-24 - Inicialización del Ecosistema
 **TIPO**: INFRAESTRUCTURA INICIAL
@@ -276,6 +326,8 @@ noteZ/
 - **Test en ambas plataformas**: No asumir comportamiento similar
 - **Validate paths**: Usar `os.path.exists()` antes de operaciones
 - **Handle interruptions**: Ctrl+C debe guardar estado siempre
+- **Secuencias ANSI**: Usar `\033[` para control portable de terminal
+- **Terminal size**: `shutil.get_terminal_size()` con fallback a (80, 24)
 
 ---
 
@@ -283,14 +335,14 @@ noteZ/
 
 > **Esta sección se actualiza automáticamente con cada cambio del proyecto**
 
-**Última actualización**: 2025-10-24 16:15  
-**Cambios desde última actualización**: Comando /r para lectura contextual implementado  
-**Próxima revisión programada**: Testing completo en Termux Android  
-**Estado del proyecto**: FUNCIONALIDAD AVANZADA COMPLETA - READY FOR DEPLOYMENT
+**Última actualización**: 2025-11-27
+**Cambios desde última actualización**: Modo Dual (split-screen) con `-dual`/`--dual` implementado
+**Próxima revisión programada**: Testing completo en Termux Android
+**Estado del proyecto**: v1.1.0-FUSION - MODO DUAL IMPLEMENTADO
 
 ---
 
 **📈 Memoria Extendida Activa**: Este documento evoluciona automáticamente  
 **🤖 Agente Responsable**: noteZ-Agent.chatmode.md  
-**🔄 Versión de Memoria**: 1.0.0-INITIAL  
+**🔄 Versión de Memoria**: 1.1.0-DUAL  
 **⚡ Protocolos FUSION**: ACTIVOS - Garantizando coherencia y calidad

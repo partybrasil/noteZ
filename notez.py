@@ -4,7 +4,7 @@ noteZ - CLI minimalista para notas incrementales rápidas y continuas
 Funciona en Windows PowerShell 7 y Termux Android con detección automática de plataforma.
 
 Autor: partybrasil
-Versión: 1.0.0-FUSION
+Versión: 1.1.0-FUSION
 Compatibilidad: Python 3.x
 Plataformas: Windows PowerShell 7 + Android Termux
 """
@@ -12,7 +12,16 @@ Plataformas: Windows PowerShell 7 + Android Termux
 import sys
 import os
 import argparse
+import shutil
 from datetime import datetime
+
+
+# ============================================================================
+# CONFIGURACIÓN DEL MODO DUAL
+# ============================================================================
+# Porcentaje del terminal reservado para el panel de lectura (panel superior)
+# Valor entre 0.1 (10%) y 0.9 (90%). Default: 0.80 (80%)
+DUAL_READ_PANEL_RATIO = 0.80
 
 
 def get_path():
@@ -37,6 +46,47 @@ def get_path():
     return notes_path
 
 
+def get_terminal_size():
+    """
+    Obtiene el tamaño actual del terminal de forma portable.
+    
+    Returns:
+        tuple: (columnas, filas) del terminal
+    """
+    try:
+        size = shutil.get_terminal_size(fallback=(80, 24))
+        return size.columns, size.lines
+    except Exception:
+        return 80, 24
+
+
+def clear_screen():
+    """
+    Limpia la pantalla del terminal de forma portable.
+    Funciona en Windows y Unix/Linux/Termux.
+    """
+    # Usar secuencia ANSI que funciona en PowerShell 7 y Termux
+    print("\033[2J\033[H", end="", flush=True)
+
+
+def move_cursor(row, col=1):
+    """
+    Mueve el cursor a una posición específica del terminal.
+    
+    Args:
+        row (int): Número de fila (1-indexed)
+        col (int): Número de columna (1-indexed, default=1)
+    """
+    print(f"\033[{row};{col}H", end="", flush=True)
+
+
+def clear_line():
+    """
+    Limpia la línea actual del cursor.
+    """
+    print("\033[2K", end="", flush=True)
+
+
 def show_help():
     """
     Muestra el menú de ayuda básico con los comandos disponibles.
@@ -59,6 +109,14 @@ def show_help():
 │  notez           → Modo grabación      │
 │  notez -r        → Modo lectura        │
 │  notez --read    → Modo lectura        │
+│  notez -dual     → Modo dual (split)   │
+│  notez --dual    → Modo dual (split)   │
+│                                         │
+│ MODO DUAL:                             │
+│                                         │
+│  Panel superior: Notas en tiempo real  │
+│  Panel inferior: Escribir nuevas notas │
+│  Las notas aparecen arriba al guardar  │
 │                                         │
 │ TIPS:                                   │
 │                                         │
@@ -215,6 +273,190 @@ def read_notes(file_path, return_to_recording=False):
         print("\nSaliendo del modo lectura...")
 
 
+def render_dual_read_panel(file_path, read_lines, term_width):
+    """
+    Renderiza el panel de lectura para el modo dual.
+    
+    Args:
+        file_path (str): Ruta al archivo de notas
+        read_lines (int): Número de líneas disponibles para el panel de lectura
+        term_width (int): Ancho del terminal
+    
+    Returns:
+        list: Lista de líneas formateadas para mostrar
+    """
+    display_lines = []
+    
+    # Línea de encabezado
+    header = "╭── noteZ DUAL MODE ── Panel de Lectura (tiempo real) ──╮"
+    display_lines.append(header[:term_width])
+    
+    # Líneas disponibles para contenido (descontar header y separador)
+    content_lines = read_lines - 2
+    
+    if not os.path.exists(file_path):
+        display_lines.append("│ (No hay notas guardadas aún)")
+        # Rellenar con líneas vacías
+        for _ in range(content_lines - 1):
+            display_lines.append("│")
+    else:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                all_lines = f.readlines()
+            
+            if not all_lines:
+                display_lines.append("│ (El archivo está vacío)")
+                for _ in range(content_lines - 1):
+                    display_lines.append("│")
+            else:
+                # Mostrar las últimas N líneas que quepan
+                total = len(all_lines)
+                start_idx = max(0, total - content_lines)
+                
+                for i in range(start_idx, total):
+                    line_content = all_lines[i].rstrip()
+                    # Truncar si es muy larga
+                    max_content_width = term_width - 7  # "1234 │ "
+                    if len(line_content) > max_content_width:
+                        line_content = line_content[:max_content_width - 3] + "..."
+                    formatted_line = f"{i+1:4d} │ {line_content}"
+                    display_lines.append(formatted_line[:term_width])
+                
+                # Rellenar con líneas vacías si no hay suficientes notas
+                lines_shown = total - start_idx
+                for _ in range(content_lines - lines_shown):
+                    display_lines.append("│")
+        except Exception:
+            display_lines.append("│ (Error al leer archivo)")
+            for _ in range(content_lines - 1):
+                display_lines.append("│")
+    
+    # Línea separadora
+    separator = "╰" + "─" * (term_width - 2) + "╯"
+    display_lines.append(separator[:term_width])
+    
+    return display_lines
+
+
+def run_dual_mode(file_path):
+    """
+    Ejecuta el modo dual con panel de lectura arriba y grabación abajo.
+    El panel superior muestra las notas en tiempo real (80% del espacio).
+    El panel inferior permite escribir nuevas notas (20% del espacio).
+    
+    Args:
+        file_path (str): Ruta completa al archivo de notas
+    """
+    def refresh_display():
+        """Refresca la pantalla completa del modo dual."""
+        term_width, term_height = get_terminal_size()
+        
+        # Calcular líneas para cada panel
+        read_panel_lines = max(5, int(term_height * DUAL_READ_PANEL_RATIO))
+        write_panel_lines = term_height - read_panel_lines
+        
+        # Limpiar pantalla
+        clear_screen()
+        
+        # Renderizar panel de lectura
+        read_display = render_dual_read_panel(file_path, read_panel_lines, term_width)
+        for line in read_display:
+            print(line)
+        
+        # Línea de información del panel de escritura
+        write_header = f"╭── Panel de Escritura ── /h ayuda ── /q salir ──╮"
+        print(write_header[:term_width])
+        
+        return term_width, term_height, read_panel_lines
+    
+    # Mostrar pantalla inicial
+    term_width, term_height, read_panel_lines = refresh_display()
+    
+    # Bucle principal de escritura
+    while True:
+        try:
+            user_input = input("[noteZ DUAL] > ")
+            
+            # Manejar comandos especiales
+            if user_input == '/q':
+                # Escribir línea decorativa final y salir
+                timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{timestamp} ============================ Sesión finalizada ===========================\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                clear_screen()
+                print("\n¡Notas guardadas! Hasta luego.")
+                break
+                
+            elif user_input == '/h':
+                # Mostrar ayuda
+                clear_screen()
+                show_help()
+                term_width, term_height, read_panel_lines = refresh_display()
+                continue
+                
+            elif user_input == '/n':
+                # Línea vacía como separador mínimo
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write("\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                # Refrescar display para mostrar cambio
+                term_width, term_height, read_panel_lines = refresh_display()
+                continue
+                
+            elif user_input == '/n=':
+                # Línea decorativa con separador
+                timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{timestamp} ==========================================================================\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                # Refrescar display para mostrar cambio
+                term_width, term_height, read_panel_lines = refresh_display()
+                continue
+                
+            elif user_input == '/r':
+                # En modo dual, /r no hace nada especial (ya estamos viendo las notas)
+                print("(Ya estás en modo dual - las notas se muestran arriba en tiempo real)")
+                continue
+                
+            else:
+                # Línea normal de nota con timestamp
+                if user_input.strip():  # Solo escribir si no está vacía
+                    timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                    try:
+                        with open(file_path, 'a', encoding='utf-8') as f:
+                            f.write(f"{timestamp} {user_input}\n")
+                    except Exception as e:
+                        print(f"Error al guardar: {e}")
+                    # Refrescar display para mostrar nueva nota
+                    term_width, term_height, read_panel_lines = refresh_display()
+                continue
+                
+        except KeyboardInterrupt:
+            # Ctrl+C: guardar línea de cierre y salir limpiamente
+            print("\n\nGuardando y cerrando...")
+            timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+            try:
+                with open(file_path, 'a', encoding='utf-8') as f:
+                    f.write(f"{timestamp} ========== Interrupción del usuario ==========\n")
+                clear_screen()
+                print("¡Notas guardadas! Hasta luego.")
+            except Exception as e:
+                print(f"Error al guardar: {e}")
+            break
+        except EOFError:
+            # EOF (Ctrl+D en Unix): salir limpiamente
+            clear_screen()
+            print("\n\n¡Hasta luego!")
+            break
+
+
 def main():
     """
     Función principal que maneja argumentos y ejecuta el bucle apropiado.
@@ -228,6 +470,8 @@ Ejemplos de uso:
   notez           Modo grabación (default)
   notez -r        Modo lectura
   notez --read    Modo lectura
+  notez -dual     Modo dual (split-screen)
+  notez --dual    Modo dual (split-screen)
   
 Comandos durante grabación:
   /n      Línea vacía
@@ -235,6 +479,11 @@ Comandos durante grabación:
   /r      Leer notas (modo lectura temporal)
   /h      Ayuda
   /q      Salir
+  
+Modo Dual:
+  Panel superior (80%): Muestra notas en tiempo real
+  Panel inferior (20%): Escribir nuevas notas
+  Las notas aparecen arriba automáticamente al guardar
         """
     )
     
@@ -245,9 +494,15 @@ Comandos durante grabación:
     )
     
     parser.add_argument(
+        '-dual', '--dual',
+        action='store_true',
+        help='Inicia modo dual: panel lectura arriba (80%%) + escritura abajo (20%%)'
+    )
+    
+    parser.add_argument(
         '--version',
         action='version',
-        version='noteZ 1.0.0-FUSION'
+        version='noteZ 1.1.0-FUSION'
     )
     
     args = parser.parse_args()
@@ -256,7 +511,10 @@ Comandos durante grabación:
     notes_file = get_path()
     
     try:
-        if args.read:
+        if args.dual:
+            # Modo dual: split-screen con lectura arriba y escritura abajo
+            run_dual_mode(notes_file)
+        elif args.read:
             # Modo lectura
             read_notes(notes_file)
         else:

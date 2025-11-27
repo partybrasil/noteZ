@@ -5,7 +5,7 @@
 ## 📊 Información del Proyecto
 
 - **Nombre**: noteZ
-- **Versión Actual**: 1.1.0-FUSION
+- **Versión Actual**: 1.2.0-FUSION
 - **Tipo**: CLI Application (Command Line Interface)
 - **Lenguaje**: Python 3.x
 - **Plataformas**: Windows PowerShell 7 + Android Termux
@@ -25,6 +25,7 @@ Eliminar completamente la fricción entre tener una idea y guardarla permanentem
 4. **Debugging logs**: Anotar hallazgos durante troubleshooting
 5. **Capture rápido**: Ideas que no pueden perderse
 6. **Sesión dual**: Ver historial mientras escribes nuevas notas
+7. **Notas confidenciales**: Información sensible en entornos compartidos (modo hide)
 
 ## 🏗️ Arquitectura Actual
 
@@ -38,6 +39,7 @@ def clear_line()            # Limpieza de línea actual
 def write_line()            # Escritura inmediata con timestamp
 def read_notes()            # Lectura paginada eficiente
 def run_dual_mode()         # Modo dual split-screen
+def run_hide_mode()         # Modo privacidad con limpieza de pantalla
 def render_dual_read_panel()# Renderizado del panel de lectura
 def show_help()             # Sistema de ayuda integrado (/h)
 def main()                  # Orquestador principal
@@ -54,6 +56,7 @@ DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
 5. **Lectura Paginada**: Eficiencia de memoria O(1) por página
 6. **Secuencias ANSI**: Control de terminal portable (PowerShell 7 + Termux)
 7. **Split-Screen**: División de terminal con ratio configurable
+8. **Limpieza de Pantalla**: Clear automático tras acciones en modo privacidad
 
 ### Rutas por Plataforma
 - **Windows**: `C:\Users\<Usuario>\notez\notas.txt`
@@ -70,6 +73,7 @@ DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
   - `/n=` → Línea decorativa `==========`
   - `/r` → Modo lectura temporal desde grabación
   - `/h` → Menú de ayuda **[AÑADIDO 2025-10-24]**
+  - `/hide` → Activar modo privacidad **[AÑADIDO 2025-11-27]**
   - `/q` → Salida segura con guardado
 
 ### Modo Lectura
@@ -89,6 +93,16 @@ DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
 - **Secuencias ANSI**: Compatible con Windows PowerShell 7 y Termux
 - **Comandos soportados**: Todos los comandos especiales (/n, /n=, /h, /q)
 
+### Modo Hide (Privacidad) **[AÑADIDO 2025-11-27]**
+- **Activación**: `notez -hide` o `notez --hide` o `/hide` desde grabación
+- **Prompt**: `[noteZ HIDE] >`
+- **Limpieza Automática**: La pantalla se limpia tras guardar cada nota
+- **Privacidad Ampliada**: La información escrita no queda expuesta en el terminal
+- **Confirmación Visual**: Muestra "✓ Nota guardada" tras cada entrada
+- **Comandos soportados**: Todos los comandos especiales (/n, /n=, /r, /h, /q)
+- **Secuencias ANSI**: Compatible con Windows PowerShell 7 y Termux
+- **Ideal para**: Entornos compartidos, información sensible, notas confidenciales
+
 ### Manejo de Sistema
 - **Ctrl+C**: Guardado automático antes de salir
 - **Clipboard**: Soporte transparente para pegar
@@ -99,19 +113,46 @@ DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
 
 ```
 noteZ/
-├── notez.py                           # ✅ IMPLEMENTADO - Aplicación principal (v1.1.0)
+├── notez.py                           # ✅ IMPLEMENTADO - Aplicación principal (v1.2.0)
 ├── README.md                          # ✅ Documentación completa
 ├── LICENSE                            # [PENDIENTE] - MIT License
 ├── noteZ prototype.md                 # ✅ Documento de diseño original
 └── .github/
-    ├── chatmodes/
-    │   └── noteZ-Agent.chatmode.md    # ✅ Agente especializado FUSION
+    ├── agents/
+    │   └── noteZ-Agent.md             # ✅ Agente especializado FUSION
     └── project-memory.md              # ✅ Este documento (memoria extendida)
 ```
 
 ## 📈 Evolución del Proyecto
 
 ### Changelog Detallado
+
+#### 2025-11-27 - Modo Hide (Privacidad) Implementado
+**TIPO**: NUEVA FUNCIONALIDAD MAYOR - UPGRADE SIGNIFICATIVO
+- ✅ **Modo Hide implementado**: Modo privacidad con `-hide`/`--hide` o `/hide`
+- ✅ **Limpieza de pantalla automática**: Tras guardar cada nota
+- ✅ **Privacidad ampliada**: La información no queda expuesta en el terminal
+- ✅ **Confirmación visual**: Muestra "✓ Nota guardada" tras cada entrada
+- ✅ **Nueva función principal**: `run_hide_mode()`
+- ✅ **Comando interno**: `/hide` para activar desde modo grabación normal
+- ✅ **Secuencias ANSI portables**: Compatible con PowerShell 7 y Termux
+- ✅ **Comandos soportados**: Todos los comandos especiales (/n, /n=, /r, /h, /q)
+- ✅ **Documentación actualizada**: README.md, show_help(), argparser
+- ✅ **Memoria extendida actualizada**: Este documento con todos los cambios
+
+**DECISIONES ARQUITECTÓNICAS v1.2.0**:
+1. Reutilización de `clear_screen()` existente para limpieza
+2. Prompt distintivo `[noteZ HIDE] >` para identificación clara del modo
+3. Confirmación visual "✓ Nota guardada" para feedback al usuario
+4. Limpieza tras cada acción (nota, separador, ayuda, lectura)
+5. Activación flexible: parámetro CLI o comando interno `/hide`
+
+**IMPACTO EN SISTEMA**:
+- Nueva capa de privacidad para notas confidenciales
+- Ideal para entornos compartidos o información sensible
+- Mantiene compatibilidad 100% con modos existentes
+- Sin dependencias externas adicionales
+- Versión actualizada a 1.2.0-FUSION
 
 #### 2025-11-27 - Modo Dual (Split-Screen) Implementado
 **TIPO**: NUEVA FUNCIONALIDAD MAYOR - UPGRADE SIGNIFICATIVO
@@ -184,9 +225,11 @@ noteZ/
 ### Funcionalidades Pendientes de Implementación
 
 #### ✅ Código Principal (`notez.py`) - COMPLETADO
-**STATUS**: IMPLEMENTADO Y FUNCIONAL
+**STATUS**: IMPLEMENTADO Y FUNCIONAL v1.2.0
 - ✅ Todos los módulos definidos implementados
-- ✅ Comandos especiales integrados (/n, /n=, /r, /h, /q)
+- ✅ Comandos especiales integrados (/n, /n=, /r, /h, /hide, /q)
+- ✅ Modo Dual (split-screen) implementado
+- ✅ Modo Hide (privacidad) implementado
 - ✅ Testing inicial en Windows PowerShell 7 exitoso
 - ✅ Performance optimizada según benchmarks
 
@@ -196,7 +239,7 @@ noteZ/
 - Documentar términos de uso y contribución
 
 #### 🔄 Roadmap Futuro
-**PRIORIDAD**: BAJA (Post v1.0)
+**PRIORIDAD**: BAJA (Post v1.2)
 - Búsqueda en notas (`/s` command)
 - Exportación a diferentes formatos
 - Categorización con tags
@@ -336,13 +379,13 @@ noteZ/
 > **Esta sección se actualiza automáticamente con cada cambio del proyecto**
 
 **Última actualización**: 2025-11-27
-**Cambios desde última actualización**: Modo Dual (split-screen) con `-dual`/`--dual` implementado
+**Cambios desde última actualización**: Modo Hide (privacidad) con `-hide`/`--hide` y `/hide` implementado
 **Próxima revisión programada**: Testing completo en Termux Android
-**Estado del proyecto**: v1.1.0-FUSION - MODO DUAL IMPLEMENTADO
+**Estado del proyecto**: v1.2.0-FUSION - MODO HIDE (PRIVACIDAD) IMPLEMENTADO
 
 ---
 
 **📈 Memoria Extendida Activa**: Este documento evoluciona automáticamente  
-**🤖 Agente Responsable**: noteZ-Agent.chatmode.md  
-**🔄 Versión de Memoria**: 1.1.0-DUAL  
+**🤖 Agente Responsable**: noteZ-Agent.md  
+**🔄 Versión de Memoria**: 1.2.0-HIDE  
 **⚡ Protocolos FUSION**: ACTIVOS - Garantizando coherencia y calidad

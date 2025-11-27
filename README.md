@@ -116,14 +116,57 @@ notez --dual
 - 🔄 **Actualización Automática**: Al guardar una nota, aparece arriba instantáneamente
 - ⚙️ **Configurable**: Ratio de paneles ajustable en código (`DUAL_READ_PANEL_RATIO`)
 
+### 🔒 Modo Hide (Privacidad)
+
+```bash
+# Inicia modo privacidad desde terminal
+notez -hide
+# o
+notez --hide
+
+# También puedes activarlo desde el modo grabación normal
+[noteZ] > /hide
+```
+
+**Interfaz modo privacidad:**
+
+```
+╭─────────────────────────────────────────╮
+│       noteZ - MODO PRIVACIDAD 🔒       │
+│                                         │
+│  La pantalla se limpia tras cada nota   │
+│  Comandos: /n /n= /r /h /q               │
+│  Ctrl+C para salir seguro              │
+╰─────────────────────────────────────────╯
+
+[noteZ HIDE] > Tu nota privada aquí...
+
+# Tras presionar Enter, la pantalla se limpia:
+╭─────────────────────────────────────────╮
+│       noteZ - MODO PRIVACIDAD 🔒       │
+╰─────────────────────────────────────────╯
+
+✓ Nota guardada
+```
+
+**Características del Modo Hide:**
+
+- 🔒 **Privacidad Ampliada**: La pantalla se limpia automáticamente tras guardar cada nota
+- 👁️ **Información Protegida**: Lo que escribes no queda expuesto en el terminal
+- 🔄 **Activación Flexible**: Desde parámetro `-hide` o comando `/hide`
+- ✅ **Confirmación Visual**: Muestra "✓ Nota guardada" tras cada entrada
+- 🏢 **Ideal para**: Entornos compartidos, información sensible, notas confidenciales
+
 ## 🎮 Comandos Especiales
 
-| Comando | Función             | Descripción                      |
-| ------- | -------------------- | --------------------------------- |
-| `/n`  | Línea vacía        | Inserta separador mínimo         |
-| `/n=` | Separador decorativo | Inserta línea con `==========` |
-| `/h`  | Ayuda                | Muestra menú de comandos         |
-| `/q`  | Salir                | Finaliza app y guarda             |
+| Comando | Función             | Descripción                          |
+| ------- | -------------------- | ------------------------------------ |
+| `/n`    | Línea vacía        | Inserta separador mínimo             |
+| `/n=`   | Separador decorativo | Inserta línea con `==========`     |
+| `/r`    | Leer notas           | Modo lectura temporal                |
+| `/h`    | Ayuda                | Muestra menú de comandos             |
+| `/hide` | Modo privacidad      | Activa limpieza de pantalla tras nota|
+| `/q`    | Salir                | Finaliza app y guarda                 |
 
 ## 📁 Estructura de Archivos
 
@@ -163,6 +206,7 @@ clear_line()            # Limpieza de línea actual
 write_line()            # Escritura con timestamp y comandos especiales
 read_notes()            # Lectura paginada eficiente
 run_dual_mode()         # Modo dual split-screen
+run_hide_mode()         # Modo privacidad con limpieza de pantalla
 render_dual_read_panel()# Renderizado del panel de lectura
 show_help()             # Sistema de ayuda integrado
 main()                  # Orquestador principal
@@ -236,15 +280,16 @@ Este proyecto incluye un **agente de desarrollo especializado** (`noteZ-Agent.ch
 
 ## 🔄 Roadmap
 
-### ✅ Versión Actual (1.1.0)
+### ✅ Versión Actual (1.2.0)
 
 - [X] Modo grabación continua con timestamp
-- [X] Comandos especiales (/n, /n=, /q, /h, /r)
+- [X] Comandos especiales (/n, /n=, /q, /h, /r, /hide)
 - [X] Modo lectura paginada
 - [X] Detección automática de plataforma
 - [X] Manejo seguro de interrupciones
 - [X] Sistema de ayuda integrado
 - [X] **Modo Dual** (`-dual`/`--dual`): Split-screen con lectura en tiempo real
+- [X] **Modo Hide** (`-hide`/`--hide` o `/hide`): Privacidad con limpieza de pantalla tras cada nota
 
 ### 🚧 Próximas Funcionalidades
 

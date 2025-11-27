@@ -4,7 +4,7 @@ noteZ - CLI minimalista para notas incrementales rápidas y continuas
 Funciona en Windows PowerShell 7 y Termux Android con detección automática de plataforma.
 
 Autor: partybrasil
-Versión: 1.1.0-FUSION
+Versión: 1.2.0-FUSION
 Compatibilidad: Python 3.x
 Plataformas: Windows PowerShell 7 + Android Termux
 """
@@ -102,6 +102,7 @@ def show_help():
 │  /n=     → Línea decorativa =====      │
 │  /r      → Leer notas (modo lectura)   │
 │  /h      → Mostrar esta ayuda          │
+│  /hide   → Modo privacidad (limpia)    │
 │  /q      → Salir y guardar             │
 │                                         │
 │ MODOS DE USO:                          │
@@ -111,12 +112,20 @@ def show_help():
 │  notez --read    → Modo lectura        │
 │  notez -dual     → Modo dual (split)   │
 │  notez --dual    → Modo dual (split)   │
+│  notez -hide     → Modo privacidad     │
+│  notez --hide    → Modo privacidad     │
 │                                         │
 │ MODO DUAL:                             │
 │                                         │
 │  Panel superior: Notas en tiempo real  │
 │  Panel inferior: Escribir nuevas notas │
 │  Las notas aparecen arriba al guardar  │
+│                                         │
+│ MODO HIDE (Privacidad):                │
+│                                         │
+│  Limpia la pantalla tras cada nota     │
+│  La información no queda expuesta      │
+│  Ideal para entornos compartidos       │
 │                                         │
 │ TIPS:                                   │
 │                                         │
@@ -182,6 +191,10 @@ def write_line(line, file_path):
         # Mostrar ayuda y continuar
         show_help()
         return 'continue'
+        
+    elif line == '/hide':
+        # Activar modo hide desde grabación normal
+        return 'hide'
         
     else:
         # Línea normal de nota con timestamp
@@ -455,6 +468,136 @@ def run_dual_mode(file_path):
             break
 
 
+def run_hide_mode(file_path):
+    """
+    Ejecuta el modo hide (privacidad ampliada).
+    Limpia la pantalla tras cada nota guardada para proteger la información.
+    
+    Args:
+        file_path (str): Ruta completa al archivo de notas
+    """
+    # Limpiar pantalla al iniciar modo hide
+    clear_screen()
+    
+    print("╭─────────────────────────────────────────╮")
+    print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+    print("│                                         │")
+    print("│  La pantalla se limpia tras cada nota   │")
+    print("│  Comandos: /n /n= /r /h /q               │")
+    print("│  Ctrl+C para salir seguro              │")
+    print("╰─────────────────────────────────────────╯")
+    print(f"\nArchivo: {file_path}\n")
+    
+    # Bucle principal del modo hide
+    while True:
+        try:
+            user_input = input("[noteZ HIDE] > ")
+            
+            # Manejar comandos especiales
+            if user_input == '/q':
+                # Escribir línea decorativa final y salir
+                timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{timestamp} ============================ Sesión finalizada ===========================\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                clear_screen()
+                print("\n¡Notas guardadas! Hasta luego.")
+                break
+                
+            elif user_input == '/h':
+                # Mostrar ayuda
+                clear_screen()
+                show_help()
+                # Limpiar pantalla tras ver ayuda y mostrar header
+                clear_screen()
+                print("╭─────────────────────────────────────────╮")
+                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+                print("╰─────────────────────────────────────────╯\n")
+                continue
+                
+            elif user_input == '/n':
+                # Línea vacía como separador mínimo
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write("\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                # Limpiar pantalla tras guardar
+                clear_screen()
+                print("╭─────────────────────────────────────────╮")
+                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+                print("╰─────────────────────────────────────────╯")
+                print("\n✓ Separador guardado\n")
+                continue
+                
+            elif user_input == '/n=':
+                # Línea decorativa con separador
+                timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                try:
+                    with open(file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{timestamp} ==========================================================================\n")
+                except Exception as e:
+                    print(f"Error al guardar: {e}")
+                # Limpiar pantalla tras guardar
+                clear_screen()
+                print("╭─────────────────────────────────────────╮")
+                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+                print("╰─────────────────────────────────────────╯")
+                print("\n✓ Separador decorativo guardado\n")
+                continue
+                
+            elif user_input == '/r':
+                # Modo lectura temporal
+                read_notes(file_path, return_to_recording=True)
+                # Limpiar pantalla tras volver de lectura
+                clear_screen()
+                print("╭─────────────────────────────────────────╮")
+                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+                print("╰─────────────────────────────────────────╯\n")
+                continue
+                
+            elif user_input == '/hide':
+                # Ya estamos en modo hide
+                print("(Ya estás en modo privacidad)")
+                continue
+                
+            else:
+                # Línea normal de nota con timestamp
+                if user_input.strip():  # Solo escribir si no está vacía
+                    timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+                    try:
+                        with open(file_path, 'a', encoding='utf-8') as f:
+                            f.write(f"{timestamp} {user_input}\n")
+                    except Exception as e:
+                        print(f"Error al guardar: {e}")
+                    # Limpiar pantalla tras guardar - PRIVACIDAD
+                    clear_screen()
+                    print("╭─────────────────────────────────────────╮")
+                    print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+                    print("╰─────────────────────────────────────────╯")
+                    print("\n✓ Nota guardada\n")
+                
+        except KeyboardInterrupt:
+            # Ctrl+C: guardar línea de cierre y salir limpiamente
+            print("\n\nGuardando y cerrando...")
+            timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+            try:
+                with open(file_path, 'a', encoding='utf-8') as f:
+                    f.write(f"{timestamp} ========== Interrupción del usuario ==========\n")
+                clear_screen()
+                print("¡Notas guardadas! Hasta luego.")
+            except Exception as e:
+                print(f"Error al guardar: {e}")
+            break
+        except EOFError:
+            # EOF (Ctrl+D en Unix): salir limpiamente
+            clear_screen()
+            print("\n\n¡Hasta luego!")
+            break
+
+
 def main():
     """
     Función principal que maneja argumentos y ejecuta el bucle apropiado.
@@ -470,18 +613,26 @@ Ejemplos de uso:
   notez --read    Modo lectura
   notez -dual     Modo dual (split-screen)
   notez --dual    Modo dual (split-screen)
+  notez -hide     Modo privacidad (limpia pantalla tras cada nota)
+  notez --hide    Modo privacidad (limpia pantalla tras cada nota)
   
 Comandos durante grabación:
   /n      Línea vacía
   /n=     Separador decorativo
   /r      Leer notas (modo lectura temporal)
   /h      Ayuda
+  /hide   Activar modo privacidad
   /q      Salir
   
 Modo Dual:
   Panel superior (80%): Muestra notas en tiempo real
   Panel inferior (20%): Escribir nuevas notas
   Las notas aparecen arriba automáticamente al guardar
+  
+Modo Hide (Privacidad):
+  La pantalla se limpia automáticamente tras guardar cada nota
+  La información escrita no queda expuesta en el terminal
+  Ideal para entornos compartidos o información sensible
         """
     )
     
@@ -498,9 +649,15 @@ Modo Dual:
     )
     
     parser.add_argument(
+        '-hide', '--hide',
+        action='store_true',
+        help='Inicia modo privacidad: limpia pantalla tras cada nota guardada'
+    )
+    
+    parser.add_argument(
         '--version',
         action='version',
-        version='noteZ 1.1.0-FUSION'
+        version='noteZ 1.2.0-FUSION'
     )
     
     args = parser.parse_args()
@@ -509,7 +666,10 @@ Modo Dual:
     notes_file = get_path()
     
     try:
-        if args.dual:
+        if args.hide:
+            # Modo hide: privacidad ampliada con limpieza de pantalla tras cada nota
+            run_hide_mode(notes_file)
+        elif args.dual:
             # Modo dual: split-screen con lectura arriba y escritura abajo
             run_dual_mode(notes_file)
         elif args.read:
@@ -521,7 +681,7 @@ Modo Dual:
             print("│     noteZ - Notas Rápidas Continuas     │")
             print("│                                         │")
             print("│  Escribe tus notas y presiona Enter     │")
-            print("│  Comandos: /n /n= /r /h /q               │")
+            print("│  Comandos: /n /n= /r /h /hide /q         │")
             print("│  Ctrl+C para salir seguro              │")
             print("╰─────────────────────────────────────────╯")
             print(f"\nArchivo: {notes_file}\n")
@@ -531,7 +691,7 @@ Modo Dual:
                 try:
                     user_input = input("[noteZ] > ")
                     
-                    # write_line retorna 'quit', 'read', o 'continue'
+                    # write_line retorna 'quit', 'read', 'hide' o 'continue'
                     result = write_line(user_input, notes_file)
                     
                     if result == 'quit':
@@ -542,6 +702,10 @@ Modo Dual:
                         read_notes(notes_file, return_to_recording=True)
                         # Continúa con el bucle de grabación tras salir de lectura
                         continue
+                    elif result == 'hide':
+                        # Activar modo hide desde grabación normal
+                        run_hide_mode(notes_file)
+                        break  # Salir tras terminar modo hide
                     # Si result == 'continue', simplemente continúa el bucle
                         
                 except KeyboardInterrupt:

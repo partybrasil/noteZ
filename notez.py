@@ -565,6 +565,9 @@ def run_hide_mode(file_path):
             elif user_input == '/hide':
                 # Ya estamos en modo hide
                 print("(Ya estás en modo privacidad)")
+                clear_screen()
+                display_hide_header(compact=True)
+                print()
                 continue
                 
             else:

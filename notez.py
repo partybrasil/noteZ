@@ -87,6 +87,23 @@ def clear_line():
     print("\033[2K", end="", flush=True)
 
 
+def display_hide_header(compact=False):
+    """
+    Muestra el header del modo hide (privacidad).
+    
+    Args:
+        compact (bool): Si True, muestra solo la caja mínima. Si False, muestra header completo.
+    """
+    print("╭─────────────────────────────────────────╮")
+    print("│       noteZ - MODO PRIVACIDAD 🔒       │")
+    if not compact:
+        print("│                                         │")
+        print("│  La pantalla se limpia tras cada nota   │")
+        print("│  Comandos: /n /n= /r /h /q               │")
+        print("│  Ctrl+C para salir seguro              │")
+    print("╰─────────────────────────────────────────╯")
+
+
 def show_help():
     """
     Muestra el menú de ayuda básico con los comandos disponibles.
@@ -478,14 +495,7 @@ def run_hide_mode(file_path):
     """
     # Limpiar pantalla al iniciar modo hide
     clear_screen()
-    
-    print("╭─────────────────────────────────────────╮")
-    print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-    print("│                                         │")
-    print("│  La pantalla se limpia tras cada nota   │")
-    print("│  Comandos: /n /n= /r /h /q               │")
-    print("│  Ctrl+C para salir seguro              │")
-    print("╰─────────────────────────────────────────╯")
+    display_hide_header()
     print(f"\nArchivo: {file_path}\n")
     
     # Bucle principal del modo hide
@@ -510,11 +520,10 @@ def run_hide_mode(file_path):
                 # Mostrar ayuda
                 clear_screen()
                 show_help()
-                # Limpiar pantalla tras ver ayuda y mostrar header
+                # Limpiar pantalla tras ver ayuda y mostrar header compacto
                 clear_screen()
-                print("╭─────────────────────────────────────────╮")
-                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-                print("╰─────────────────────────────────────────╯\n")
+                display_hide_header(compact=True)
+                print()
                 continue
                 
             elif user_input == '/n':
@@ -526,9 +535,7 @@ def run_hide_mode(file_path):
                     print(f"Error al guardar: {e}")
                 # Limpiar pantalla tras guardar
                 clear_screen()
-                print("╭─────────────────────────────────────────╮")
-                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-                print("╰─────────────────────────────────────────╯")
+                display_hide_header(compact=True)
                 print("\n✓ Separador guardado\n")
                 continue
                 
@@ -542,9 +549,7 @@ def run_hide_mode(file_path):
                     print(f"Error al guardar: {e}")
                 # Limpiar pantalla tras guardar
                 clear_screen()
-                print("╭─────────────────────────────────────────╮")
-                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-                print("╰─────────────────────────────────────────╯")
+                display_hide_header(compact=True)
                 print("\n✓ Separador decorativo guardado\n")
                 continue
                 
@@ -553,9 +558,8 @@ def run_hide_mode(file_path):
                 read_notes(file_path, return_to_recording=True)
                 # Limpiar pantalla tras volver de lectura
                 clear_screen()
-                print("╭─────────────────────────────────────────╮")
-                print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-                print("╰─────────────────────────────────────────╯\n")
+                display_hide_header(compact=True)
+                print()
                 continue
                 
             elif user_input == '/hide':
@@ -574,9 +578,7 @@ def run_hide_mode(file_path):
                         print(f"Error al guardar: {e}")
                     # Limpiar pantalla tras guardar - PRIVACIDAD
                     clear_screen()
-                    print("╭─────────────────────────────────────────╮")
-                    print("│       noteZ - MODO PRIVACIDAD 🔒       │")
-                    print("╰─────────────────────────────────────────╯")
+                    display_hide_header(compact=True)
                     print("\n✓ Nota guardada\n")
                 
         except KeyboardInterrupt:

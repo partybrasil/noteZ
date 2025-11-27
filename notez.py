@@ -578,10 +578,10 @@ def run_hide_mode(file_path):
                         with open(file_path, 'a', encoding='utf-8') as f:
                             f.write(f"{timestamp} {user_input}\n")
                     except Exception as e:
-                        print(f"Error al guardar: {e}")
+                        clear_screen()
+                        display_hide_header(compact=True)
+                        print(f"\nError al guardar: {e}\n")
                     # Limpiar pantalla tras guardar - PRIVACIDAD
-                    clear_screen()
-                    display_hide_header(compact=True)
                     print("\n✓ Nota guardada\n")
                 
         except KeyboardInterrupt:

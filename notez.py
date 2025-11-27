@@ -351,9 +351,8 @@ def run_dual_mode(file_path):
         """Refresca la pantalla completa del modo dual."""
         term_width, term_height = get_terminal_size()
         
-        # Calcular líneas para cada panel
+        # Calcular líneas para el panel de lectura
         read_panel_lines = max(5, int(term_height * DUAL_READ_PANEL_RATIO))
-        write_panel_lines = term_height - read_panel_lines
         
         # Limpiar pantalla
         clear_screen()
@@ -436,7 +435,6 @@ def run_dual_mode(file_path):
                         print(f"Error al guardar: {e}")
                     # Refrescar display para mostrar nueva nota
                     term_width, term_height, read_panel_lines = refresh_display()
-                continue
                 
         except KeyboardInterrupt:
             # Ctrl+C: guardar línea de cierre y salir limpiamente

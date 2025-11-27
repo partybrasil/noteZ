@@ -595,6 +595,7 @@ def run_hide_mode(file_path):
                 print("¡Notas guardadas! Hasta luego.")
             except Exception as e:
                 print(f"Error al guardar: {e}")
+                clear_screen()
             break
         except EOFError:
             # EOF (Ctrl+D en Unix): salir limpiamente

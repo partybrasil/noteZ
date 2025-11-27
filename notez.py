@@ -512,7 +512,7 @@ def run_hide_mode(file_path):
                         f.write(f"{timestamp} ============================ Sesión finalizada ===========================\n")
                 except Exception as e:
                     print(f"Error al guardar: {e}")
-                clear_screen()
+                    clear_screen()
                 print("\n¡Notas guardadas! Hasta luego.")
                 break
                 

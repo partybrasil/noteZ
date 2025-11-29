@@ -77,8 +77,6 @@ notez
 ```bash
 # Lee tus notas guardadas
 notez -r
-# o
-notez --read
 ```
 
 **Navegación en lectura:**
@@ -91,8 +89,6 @@ notez --read
 ```bash
 # Inicia modo dual con panel dividido
 notez -dual
-# o
-notez --dual
 ```
 
 **Interfaz split-screen:**
@@ -121,8 +117,6 @@ notez --dual
 ```bash
 # Inicia modo privacidad desde terminal
 notez -hide
-# o
-notez --hide
 
 # También puedes activarlo desde el modo grabación normal
 [noteZ] > /hide
@@ -280,7 +274,7 @@ Este proyecto incluye un **agente de desarrollo especializado** (`noteZ-Agent.ch
 
 ## 🔄 Roadmap
 
-### ✅ Versión Actual (1.2.0)
+### ✅ Versión Actual (2.0.0-FINAL)
 
 - [X] Modo grabación continua con timestamp
 - [X] Comandos especiales (/n, /n=, /q, /h, /r, /hide)
@@ -288,8 +282,9 @@ Este proyecto incluye un **agente de desarrollo especializado** (`noteZ-Agent.ch
 - [X] Detección automática de plataforma
 - [X] Manejo seguro de interrupciones
 - [X] Sistema de ayuda integrado
-- [X] **Modo Dual** (`-dual`/`--dual`): Split-screen con lectura en tiempo real
-- [X] **Modo Hide** (`-hide`/`--hide` o `/hide`): Privacidad con limpieza de pantalla tras cada nota
+- [X] **Modo Dual** (`-dual`): Split-screen con lectura en tiempo real
+- [X] **Modo Hide** (`-hide`): Privacidad con limpieza de pantalla tras cada nota
+- [X] **CLI Minimalista**: Argumentos simplificados (`-r`, `-dual`, `-hide`)
 
 ### 🚧 Próximas Funcionalidades
 

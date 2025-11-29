@@ -4,7 +4,7 @@ noteZ - CLI minimalista para notas incrementales rápidas y continuas
 Funciona en Windows PowerShell 7 y Termux Android con detección automática de plataforma.
 
 Autor: partybrasil
-Versión: 1.3.0-FUSION
+Versión: 2.0.0-FINAL
 Compatibilidad: Python 3.x
 Plataformas: Windows PowerShell 7 + Android Termux
 """
@@ -772,7 +772,7 @@ Modo Hide (Privacidad):
     parser.add_argument(
         '--version',
         action='version',
-        version='noteZ 1.3.0-FUSION'
+        version='noteZ 2.0.0-FINAL'
     )
     
     args = parser.parse_args()

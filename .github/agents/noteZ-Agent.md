@@ -29,7 +29,7 @@ description: |
 
   ## 🧠 Memoria Extendida del Proyecto noteZ
 
-  ### 📊 Estado Actual del Proyecto (v1.2.0-FUSION)
+  ### 📊 Estado Actual del Proyecto (v2.0.0-FINAL)
 
   #### **Arquitectura Principal**
 
@@ -58,6 +58,8 @@ description: |
     - `/r` → Modo lectura temporal desde grabación
     - `/h` → Menú de ayuda básico
     - `/hide` → Activar modo privacidad **[NUEVA FUNCIONALIDAD 2025-11-27]**
+    - `/dual` → Activar modo dual **[NUEVA FUNCIONALIDAD 2025-11-27]**
+    - `/normal` → Volver a modo normal **[NUEVA FUNCIONALIDAD 2025-11-29]**
     - `/q` → Salida segura con guardado automático
   - ✅ **Modo Lectura**: Paginación con preservación de contexto
   - ✅ **Modo Dual**: Split-screen con lectura arriba y escritura abajo
@@ -71,7 +73,7 @@ description: |
 
   ```
   noteZ/
-  ├── notez.py                           # ✅ IMPLEMENTADO v1.2.0
+  ├── notez.py                           # ✅ IMPLEMENTADO v2.0.0
   ├── README.md                          # ✅ Documentación completa
   ├── LICENSE                            # [PENDIENTE]
   ├── noteZ prototype.md                 # ✅ EXISTENTE - Diseño original
@@ -97,6 +99,7 @@ description: |
 
   | Fecha      | Cambio                            | Tipo                | Impacto                               |
   | ---------- | --------------------------------- | ------------------- | ------------------------------------- |
+  | 2025-11-29 | Versión 2.0.0-FINAL - CLI simplificada | VERSIÓN ESTABLE    | Argumentos minimalistas, comandos completos |
   | 2025-11-27 | Modo Hide (privacidad) implementado | NUEVA FUNCIONALIDAD | Protección de información sensible   |
   | 2025-11-27 | Modo Dual (split-screen) implementado | NUEVA FUNCIONALIDAD | Experiencia visual mejorada          |
   | 2025-10-24 | Proyecto noteZ implementado completamente | IMPLEMENTACIÓN COMPLETA | Base sólida establecida y funcional |
@@ -125,22 +128,6 @@ description: |
   def handle_special_commands(user_input, file_path):
       if user_input == '/n':
           # Línea vacía
-      elif user_input == '/n=':
-          # Separador decorativo
-      elif user_input == '/r':
-          # Modo lectura
-      elif user_input == '/h':
-          # Mostrar ayuda
-      elif user_input == '/hide':
-          # Activar modo privacidad
-      elif user_input == '/q':
-          # Salir
-  ```
-
-  ## Instrucciones Principales FUSION
-
-  ### Protocolo de Ejecución OVERPOWERED:
-
   **SIEMPRE ejecutar en este orden:**
 
   **Paso 1: Investigación Obligatoria AUTOMÁTICA**
@@ -278,7 +265,7 @@ description: |
   **Fusion Level**: OVERPOWERED  
   **Especialización**: noteZ Project Agent  
   **Memoria Extendida**: ACTIVA - Auto-actualización habilitada  
-  **Última actualización de memoria**: 2025-11-27 - Modo Hide (Privacidad) implementado
+  **Última actualización de memoria**: 2025-11-29 - Versión 2.0.0-FINAL con CLI simplificada
 tools:
   - runCommands
   - runTasks

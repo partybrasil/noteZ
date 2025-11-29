@@ -153,14 +153,16 @@ notez -hide
 
 ## 🎮 Comandos Especiales
 
-| Comando | Función             | Descripción                          |
-| ------- | -------------------- | ------------------------------------ |
-| `/n`    | Línea vacía        | Inserta separador mínimo             |
-| `/n=`   | Separador decorativo | Inserta línea con `==========`     |
-| `/r`    | Leer notas           | Modo lectura temporal                |
-| `/h`    | Ayuda                | Muestra menú de comandos             |
-| `/hide` | Modo privacidad      | Activa limpieza de pantalla tras nota|
-| `/q`    | Salir                | Finaliza app y guarda                 |
+| Comando  | Función             | Descripción                          |
+| -------- | -------------------- | ------------------------------------ |
+| `/n`     | Línea vacía        | Inserta separador mínimo             |
+| `/n=`    | Separador decorativo | Inserta línea con `==========`     |
+| `/r`     | Leer notas           | Modo lectura temporal                |
+| `/h`     | Ayuda                | Muestra menú de comandos             |
+| `/hide`  | Modo privacidad      | Activa limpieza de pantalla tras nota|
+| `/dual`  | Modo dual            | Activa modo split-screen             |
+| `/normal`| Modo normal          | Vuelve al modo de grabación normal   |
+| `/q`     | Salir                | Finaliza app y guarda                 |
 
 ## 📁 Estructura de Archivos
 

@@ -5,13 +5,13 @@
 ## 📊 Información del Proyecto
 
 - **Nombre**: noteZ
-- **Versión Actual**: 1.2.0-FUSION
+- **Versión Actual**: 2.0.0-FINAL
 - **Tipo**: CLI Application (Command Line Interface)
 - **Lenguaje**: Python 3.x
 - **Plataformas**: Windows PowerShell 7 + Android Termux
 - **Filosofía**: Minimalismo + Zero-friction + Portabilidad
 - **Fecha de Inicio**: 2025-10-24
-- **Última Actualización**: 2025-11-27
+- **Última Actualización**: 2025-11-29
 
 ## 🎯 Propósito y Visión
 
@@ -74,6 +74,8 @@ DUAL_READ_PANEL_RATIO = 0.80  # Porcentaje del terminal para panel de lectura
   - `/r` → Modo lectura temporal desde grabación
   - `/h` → Menú de ayuda **[AÑADIDO 2025-10-24]**
   - `/hide` → Activar modo privacidad **[AÑADIDO 2025-11-27]**
+  - `/dual` → Activar modo dual **[AÑADIDO 2025-11-27]**
+  - `/normal` → Volver a modo normal **[AÑADIDO 2025-11-29]**
   - `/q` → Salida segura con guardado
 
 ### Modo Lectura
@@ -378,14 +380,14 @@ noteZ/
 
 > **Esta sección se actualiza automáticamente con cada cambio del proyecto**
 
-**Última actualización**: 2025-11-27
-**Cambios desde última actualización**: Modo Hide (privacidad) con `-hide`/`--hide` y `/hide` implementado
+**Última actualización**: 2025-11-29
+**Cambios desde última actualización**: Versión 2.0.0-FINAL - Documentación completa actualizada con comandos `/dual` y `/normal`, CLI simplificada
 **Próxima revisión programada**: Testing completo en Termux Android
-**Estado del proyecto**: v1.2.0-FUSION - MODO HIDE (PRIVACIDAD) IMPLEMENTADO
+**Estado del proyecto**: v2.0.0-FINAL - VERSIÓN ESTABLE CON MODOS DUAL Y HIDE IMPLEMENTADOS
 
 ---
 
 **📈 Memoria Extendida Activa**: Este documento evoluciona automáticamente  
 **🤖 Agente Responsable**: noteZ-Agent.md  
-**🔄 Versión de Memoria**: 1.2.0-HIDE  
+**🔄 Versión de Memoria**: 2.0.0-FINAL  
 **⚡ Protocolos FUSION**: ACTIVOS - Garantizando coherencia y calidad

@@ -66,7 +66,10 @@ def clear_screen():
     Funciona en Windows y Unix/Linux/Termux.
     """
     # Usar secuencia ANSI que funciona en PowerShell 7 y Termux
-    print("\033[2J\033[H", end="", flush=True)
+    # \033[2J: Limpia pantalla visible
+    # \033[3J: Limpia buffer de scrollback (importante para privacidad)
+    # \033[H: Mueve cursor al inicio (1,1)
+    print("\033[2J\033[3J\033[H", end="", flush=True)
 
 
 def move_cursor(row, col=1):
@@ -194,7 +197,7 @@ def write_line(line, file_path):
             print(f"Error al guardar: {e}")
         return 'continue'
         
-    elif line == '/n=':
+    elif line == '/n= ':
         # Línea decorativa con separador
         timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
         try:
@@ -581,7 +584,10 @@ def run_hide_mode(file_path):
                         clear_screen()
                         display_hide_header(compact=True)
                         print(f"\nError al guardar: {e}\n")
+                    
                     # Limpiar pantalla tras guardar - PRIVACIDAD
+                    clear_screen()
+                    display_hide_header(compact=True)
                     print("\n✓ Nota guardada\n")
                 
         except KeyboardInterrupt:

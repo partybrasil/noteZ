@@ -4,7 +4,7 @@ noteZ - CLI minimalista para notas incrementales rápidas y continuas
 Funciona en Windows PowerShell 7 y Termux Android con detección automática de plataforma.
 
 Autor: partybrasil
-Versión: 1.2.0-FUSION
+Versión: 2.0.0-FINAL
 Compatibilidad: Python 3.x
 Plataformas: Windows PowerShell 7 + Android Termux
 """
@@ -102,7 +102,7 @@ def display_hide_header(compact=False):
     if not compact:
         print("│                                         │")
         print("│  La pantalla se limpia tras cada nota   │")
-        print("│  Comandos: /n /n= /r /h /q               │")
+        print("│  Comandos: /n /n= /r /h /q /normal      │")
         print("│  Ctrl+C para salir seguro              │")
     print("╰─────────────────────────────────────────╯")
 
@@ -123,17 +123,16 @@ def show_help():
 │  /r      → Leer notas (modo lectura)   │
 │  /h      → Mostrar esta ayuda          │
 │  /hide   → Modo privacidad (limpia)    │
+│  /dual   → Modo dual (split screen)    │
+│  /normal → Volver a modo normal        │
 │  /q      → Salir y guardar             │
 │                                         │
 │ MODOS DE USO:                          │
 │                                         │
 │  notez           → Modo grabación      │
 │  notez -r        → Modo lectura        │
-│  notez --read    → Modo lectura        │
 │  notez -dual     → Modo dual (split)   │
-│  notez --dual    → Modo dual (split)   │
 │  notez -hide     → Modo privacidad     │
-│  notez --hide    → Modo privacidad     │
 │                                         │
 │ MODO DUAL:                             │
 │                                         │
@@ -171,7 +170,7 @@ def write_line(line, file_path):
         file_path (str): Ruta completa al archivo de notas
         
     Returns:
-        str: 'quit' si debe salir (/q), 'read' si debe activar lectura (/r), 'continue' si continúa
+        str: Acción a tomar ('quit', 'read', 'hide', 'dual', 'normal', 'continue')
     """
     # Manejar comandos especiales
     if line == '/q':
@@ -197,7 +196,7 @@ def write_line(line, file_path):
             print(f"Error al guardar: {e}")
         return 'continue'
         
-    elif line == '/n= ':
+    elif line == '/n=':
         # Línea decorativa con separador
         timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
         try:
@@ -213,8 +212,17 @@ def write_line(line, file_path):
         return 'continue'
         
     elif line == '/hide':
-        # Activar modo hide desde grabación normal
+        # Activar modo hide
         return 'hide'
+
+    elif line == '/dual':
+        # Activar modo dual
+        return 'dual'
+
+    elif line == '/normal':
+        # Ya estamos en modo normal (grabación), pero retornamos explícitamente
+        print("(Ya estás en modo normal)")
+        return 'continue'
         
     else:
         # Línea normal de nota con timestamp
@@ -379,6 +387,9 @@ def run_dual_mode(file_path):
     
     Args:
         file_path (str): Ruta completa al archivo de notas
+        
+    Returns:
+        str: Próximo estado ('quit', 'normal', 'hide')
     """
     def refresh_display():
         """Refresca la pantalla completa del modo dual."""
@@ -420,7 +431,7 @@ def run_dual_mode(file_path):
                     print(f"Error al guardar: {e}")
                 clear_screen()
                 print("\n¡Notas guardadas! Hasta luego.")
-                break
+                return 'quit'
                 
             elif user_input == '/h':
                 # Mostrar ayuda
@@ -456,6 +467,17 @@ def run_dual_mode(file_path):
                 # En modo dual, /r no hace nada especial (ya estamos viendo las notas)
                 print("(Ya estás en modo dual - las notas se muestran arriba en tiempo real)")
                 continue
+
+            elif user_input == '/normal':
+                clear_screen()
+                return 'normal'
+            
+            elif user_input == '/hide':
+                return 'hide'
+
+            elif user_input == '/dual':
+                print("(Ya estás en modo dual)")
+                continue
                 
             else:
                 # Línea normal de nota con timestamp
@@ -480,12 +502,12 @@ def run_dual_mode(file_path):
                 print("¡Notas guardadas! Hasta luego.")
             except Exception as e:
                 print(f"Error al guardar: {e}")
-            break
+            return 'quit'
         except EOFError:
             # EOF (Ctrl+D en Unix): salir limpiamente
             clear_screen()
             print("\n\n¡Hasta luego!")
-            break
+            return 'quit'
 
 
 def run_hide_mode(file_path):
@@ -495,6 +517,9 @@ def run_hide_mode(file_path):
     
     Args:
         file_path (str): Ruta completa al archivo de notas
+        
+    Returns:
+        str: Próximo estado ('quit', 'normal', 'dual')
     """
     # Limpiar pantalla al iniciar modo hide
     clear_screen()
@@ -517,7 +542,7 @@ def run_hide_mode(file_path):
                     print(f"Error al guardar: {e}")
                     clear_screen()
                 print("\n¡Notas guardadas! Hasta luego.")
-                break
+                return 'quit'
                 
             elif user_input == '/h':
                 # Mostrar ayuda
@@ -572,6 +597,13 @@ def run_hide_mode(file_path):
                 display_hide_header(compact=True)
                 print()
                 continue
+
+            elif user_input == '/normal':
+                clear_screen()
+                return 'normal'
+
+            elif user_input == '/dual':
+                return 'dual'
                 
             else:
                 # Línea normal de nota con timestamp
@@ -602,18 +634,87 @@ def run_hide_mode(file_path):
             except Exception as e:
                 print(f"Error al guardar: {e}")
                 clear_screen()
-            break
+            return 'quit'
         except EOFError:
             # EOF (Ctrl+D en Unix): salir limpiamente
             clear_screen()
             print("\n\n¡Hasta luego!")
-            break
+            return 'quit'
+
+
+def run_recording_mode(file_path):
+    """
+    Ejecuta el modo normal de grabación.
+    
+    Args:
+        file_path (str): Ruta completa al archivo de notas
+        
+    Returns:
+        str: Próximo estado ('quit', 'hide', 'dual')
+    """
+    clear_screen()
+    print("╭─────────────────────────────────────────╮")
+    print("│     noteZ - Notas Rápidas Continuas     │")
+    print("│                                         │")
+    print("│  Escribe tus notas y presiona Enter     │")
+    print("│  Comandos: /n /n= /r /h /hide /dual /q  │")
+    print("│  Ctrl+C para salir seguro              │")
+    print("╰─────────────────────────────────────────╯")
+    print(f"\nArchivo: {file_path}\n")
+    
+    # Bucle principal de grabación
+    while True:
+        try:
+            user_input = input("[noteZ] > ")
+            
+            # write_line retorna 'quit', 'read', 'hide', 'dual', 'normal', 'continue'
+            result = write_line(user_input, file_path)
+            
+            if result == 'quit':
+                print("\n¡Notas guardadas! Hasta luego.")
+                return 'quit'
+            elif result == 'read':
+                # Activar modo lectura temporal desde grabación
+                read_notes(file_path, return_to_recording=True)
+                # Continúa con el bucle de grabación tras salir de lectura
+                continue
+            elif result == 'hide':
+                return 'hide'
+            elif result == 'dual':
+                return 'dual'
+            elif result == 'normal':
+                # Ya estamos en normal, pero refrescamos la pantalla por si acaso
+                continue
+            # Si result == 'continue', simplemente continúa el bucle
+                
+        except KeyboardInterrupt:
+            # Ctrl+C: guardar línea de cierre y salir limpiamente
+            print("\n\nGuardando y cerrando...")
+            timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
+            try:
+                with open(file_path, 'a', encoding='utf-8') as f:
+                    f.write(f"{timestamp} ========== Interrupción del usuario ==========\n")
+                print("¡Notas guardadas! Hasta luego.")
+            except Exception as e:
+                print(f"Error al guardar: {e}")
+            return 'quit'
+        except EOFError:
+            # EOF (Ctrl+D en Unix): salir limpiamente
+            print("\n\n¡Hasta luego!")
+            return 'quit'
 
 
 def main():
     """
     Función principal que maneja argumentos y ejecuta el bucle apropiado.
     """
+    # Forzar encoding UTF-8 para Windows
+    if sys.platform == 'win32':
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+        except AttributeError:
+            pass
+
     # Configurar parser de argumentos
     parser = argparse.ArgumentParser(
         description="noteZ - CLI minimalista para notas incrementales",
@@ -622,11 +723,8 @@ def main():
 Ejemplos de uso:
   notez           Modo grabación (default)
   notez -r        Modo lectura
-  notez --read    Modo lectura
   notez -dual     Modo dual (split-screen)
-  notez --dual    Modo dual (split-screen)
   notez -hide     Modo privacidad (limpia pantalla tras cada nota)
-  notez --hide    Modo privacidad (limpia pantalla tras cada nota)
   
 Comandos durante grabación:
   /n      Línea vacía
@@ -634,6 +732,8 @@ Comandos durante grabación:
   /r      Leer notas (modo lectura temporal)
   /h      Ayuda
   /hide   Activar modo privacidad
+  /dual   Activar modo dual
+  /normal Volver a modo normal
   /q      Salir
   
 Modo Dual:
@@ -649,19 +749,22 @@ Modo Hide (Privacidad):
     )
     
     parser.add_argument(
-        '-r', '--read',
+        '-r',
+        dest='read',
         action='store_true',
         help='Inicia modo lectura de notas guardadas'
     )
     
     parser.add_argument(
-        '-dual', '--dual',
+        '-dual',
+        dest='dual',
         action='store_true',
         help='Inicia modo dual: panel lectura arriba (80%%) + escritura abajo (20%%)'
     )
     
     parser.add_argument(
-        '-hide', '--hide',
+        '-hide',
+        dest='hide',
         action='store_true',
         help='Inicia modo privacidad: limpia pantalla tras cada nota guardada'
     )
@@ -669,7 +772,7 @@ Modo Hide (Privacidad):
     parser.add_argument(
         '--version',
         action='version',
-        version='noteZ 1.2.0-FUSION'
+        version='noteZ 2.0.0-FINAL'
     )
     
     args = parser.parse_args()
@@ -678,63 +781,29 @@ Modo Hide (Privacidad):
     notes_file = get_path()
     
     try:
+        # Determinar estado inicial
+        current_state = 'normal'
         if args.hide:
-            # Modo hide: privacidad ampliada con limpieza de pantalla tras cada nota
-            run_hide_mode(notes_file)
+            current_state = 'hide'
         elif args.dual:
-            # Modo dual: split-screen con lectura arriba y escritura abajo
-            run_dual_mode(notes_file)
+            current_state = 'dual'
         elif args.read:
-            # Modo lectura
+            # Modo lectura es especial, se ejecuta y sale
             read_notes(notes_file)
-        else:
-            # Modo grabación (default)
-            print("╭─────────────────────────────────────────╮")
-            print("│     noteZ - Notas Rápidas Continuas     │")
-            print("│                                         │")
-            print("│  Escribe tus notas y presiona Enter     │")
-            print("│  Comandos: /n /n= /r /h /hide /q         │")
-            print("│  Ctrl+C para salir seguro              │")
-            print("╰─────────────────────────────────────────╯")
-            print(f"\nArchivo: {notes_file}\n")
-            
-            # Bucle principal de grabación
-            while True:
-                try:
-                    user_input = input("[noteZ] > ")
-                    
-                    # write_line retorna 'quit', 'read', 'hide' o 'continue'
-                    result = write_line(user_input, notes_file)
-                    
-                    if result == 'quit':
-                        print("\n¡Notas guardadas! Hasta luego.")
-                        break
-                    elif result == 'read':
-                        # Activar modo lectura temporal desde grabación
-                        read_notes(notes_file, return_to_recording=True)
-                        # Continúa con el bucle de grabación tras salir de lectura
-                        continue
-                    elif result == 'hide':
-                        # Activar modo hide desde grabación normal
-                        run_hide_mode(notes_file)
-                        break  # Salir tras terminar modo hide
-                    # Si result == 'continue', simplemente continúa el bucle
-                        
-                except KeyboardInterrupt:
-                    # Ctrl+C: guardar línea de cierre y salir limpiamente
-                    print("\n\nGuardando y cerrando...")
-                    timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
-                    try:
-                        with open(notes_file, 'a', encoding='utf-8') as f:
-                            f.write(f"{timestamp} ========== Interrupción del usuario ==========\n")
-                        print("¡Notas guardadas! Hasta luego.")
-                    except Exception as e:
-                        print(f"Error al guardar: {e}")
-                    break
-                except EOFError:
-                    # EOF (Ctrl+D en Unix): salir limpiamente
-                    print("\n\n¡Hasta luego!")
-                    break
+            return
+
+        # Máquina de estados principal
+        while current_state != 'quit':
+            if current_state == 'normal':
+                current_state = run_recording_mode(notes_file)
+            elif current_state == 'hide':
+                current_state = run_hide_mode(notes_file)
+            elif current_state == 'dual':
+                current_state = run_dual_mode(notes_file)
+            else:
+                # Estado desconocido, salir por seguridad
+                print(f"Error: Estado desconocido '{current_state}'")
+                break
                     
     except Exception as e:
         print(f"Error crítico: {e}")

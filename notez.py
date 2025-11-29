@@ -131,11 +131,8 @@ def show_help():
 │                                         │
 │  notez           → Modo grabación      │
 │  notez -r        → Modo lectura        │
-│  notez --read    → Modo lectura        │
 │  notez -dual     → Modo dual (split)   │
-│  notez --dual    → Modo dual (split)   │
 │  notez -hide     → Modo privacidad     │
-│  notez --hide    → Modo privacidad     │
 │                                         │
 │ MODO DUAL:                             │
 │                                         │
@@ -726,11 +723,8 @@ def main():
 Ejemplos de uso:
   notez           Modo grabación (default)
   notez -r        Modo lectura
-  notez --read    Modo lectura
   notez -dual     Modo dual (split-screen)
-  notez --dual    Modo dual (split-screen)
   notez -hide     Modo privacidad (limpia pantalla tras cada nota)
-  notez --hide    Modo privacidad (limpia pantalla tras cada nota)
   
 Comandos durante grabación:
   /n      Línea vacía
@@ -755,19 +749,22 @@ Modo Hide (Privacidad):
     )
     
     parser.add_argument(
-        '-r', '--read',
+        '-r',
+        dest='read',
         action='store_true',
         help='Inicia modo lectura de notas guardadas'
     )
     
     parser.add_argument(
-        '-dual', '--dual',
+        '-dual',
+        dest='dual',
         action='store_true',
         help='Inicia modo dual: panel lectura arriba (80%%) + escritura abajo (20%%)'
     )
     
     parser.add_argument(
-        '-hide', '--hide',
+        '-hide',
+        dest='hide',
         action='store_true',
         help='Inicia modo privacidad: limpia pantalla tras cada nota guardada'
     )

@@ -199,7 +199,7 @@ def write_line(line, file_path):
             print(f"Error al guardar: {e}")
         return 'continue'
         
-    elif line == '/n= ':
+    elif line == '/n=':
         # Línea decorativa con separador
         timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
         try:

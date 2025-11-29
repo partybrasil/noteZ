@@ -29,17 +29,24 @@ description: |
 
   ## 🧠 Memoria Extendida del Proyecto noteZ
 
-  ### 📊 Estado Actual del Proyecto (v1.0.0-FUSION)
+  ### 📊 Estado Actual del Proyecto (v1.2.0-FUSION)
 
   #### **Arquitectura Principal**
 
   ```python
   # Módulos principales identificados:
-  get_path()          # Detección de plataforma (Windows/Android)
-  write_line()        # Escritura con timestamp automático
-  read_notes()        # Lectura paginada eficiente
-  show_help()         # Sistema de ayuda (/h comando)
-  main()              # Orquestador con manejo de argumentos
+  get_path()              # Detección de plataforma (Windows/Android)
+  get_terminal_size()     # Obtiene dimensiones del terminal
+  clear_screen()          # Limpieza de pantalla portable (ANSI)
+  move_cursor()           # Posicionamiento de cursor ANSI
+  clear_line()            # Limpieza de línea actual
+  write_line()            # Escritura con timestamp automático
+  read_notes()            # Lectura paginada eficiente
+  run_dual_mode()         # Modo dual split-screen
+  run_hide_mode()         # Modo privacidad con limpieza de pantalla
+  render_dual_read_panel()# Renderizado del panel de lectura
+  show_help()             # Sistema de ayuda (/h comando)
+  main()                  # Orquestador con manejo de argumentos
   ```
 
   #### **Funcionalidades Implementadas**
@@ -48,9 +55,13 @@ description: |
   - ✅ **Comandos Especiales**:
     - `/n` → Línea vacía (separador mínimo)
     - `/n=` → Línea decorativa con `==========`
-    - `/h` → Menú de ayuda básico **[NUEVA FUNCIONALIDAD 2025-10-24]**
+    - `/r` → Modo lectura temporal desde grabación
+    - `/h` → Menú de ayuda básico
+    - `/hide` → Activar modo privacidad **[NUEVA FUNCIONALIDAD 2025-11-27]**
     - `/q` → Salida segura con guardado automático
   - ✅ **Modo Lectura**: Paginación con preservación de contexto
+  - ✅ **Modo Dual**: Split-screen con lectura arriba y escritura abajo
+  - ✅ **Modo Hide (Privacidad)**: Limpia pantalla tras cada nota guardada
   - ✅ **Detección Automática de Plataforma**:
     - Windows: `C:\Users\<Usuario>\notez\notas.txt`
     - Android/Termux: `~/notez/notas.txt`
@@ -60,14 +71,14 @@ description: |
 
   ```
   noteZ/
-  ├── notez.py                           # ✅ IMPLEMENTADO 2025-10-24
-  ├── README.md                          # ✅ CREADO 2025-10-24
+  ├── notez.py                           # ✅ IMPLEMENTADO v1.2.0
+  ├── README.md                          # ✅ Documentación completa
   ├── LICENSE                            # [PENDIENTE]
   ├── noteZ prototype.md                 # ✅ EXISTENTE - Diseño original
   └── .github/
-      ├── chatmodes/
-      │   └── noteZ-Agent.chatmode.md    # ✅ CREADO 2025-10-24 - Este agente
-      └── project-memory.md              # ✅ CREADO 2025-10-24
+      ├── agents/
+      │   └── noteZ-Agent.md             # ✅ Este agente
+      └── project-memory.md              # ✅ Memoria extendida
   ```
 
   #### **Decisiones Arquitectónicas Documentadas**
@@ -76,7 +87,9 @@ description: |
   2. **Escritura inmediata**: `open(path, 'a', encoding='utf-8')` para persistencia instantánea
   3. **Lectura paginada**: Eficiencia de memoria para archivos grandes
   4. **Timestamp consistente**: Formato `[DD-MM-AAAA | HH:MM]` en todas las plataformas
-  5. **Prompts distintivos**: `[noteZ] >` grabación, `[noteZ READ MODE]` lectura
+  5. **Prompts distintivos**: `[noteZ] >`, `[noteZ READ MODE]`, `[noteZ DUAL] >`, `[noteZ HIDE] >`
+  6. **Secuencias ANSI**: Control portable de terminal (PowerShell 7 + Termux)
+  7. **Limpieza de pantalla**: `clear_screen()` para privacidad y modos visuales
 
   ### 🔄 Evolución y Cambios Rastreados
 
@@ -84,6 +97,8 @@ description: |
 
   | Fecha      | Cambio                            | Tipo                | Impacto                               |
   | ---------- | --------------------------------- | ------------------- | ------------------------------------- |
+  | 2025-11-27 | Modo Hide (privacidad) implementado | NUEVA FUNCIONALIDAD | Protección de información sensible   |
+  | 2025-11-27 | Modo Dual (split-screen) implementado | NUEVA FUNCIONALIDAD | Experiencia visual mejorada          |
   | 2025-10-24 | Proyecto noteZ implementado completamente | IMPLEMENTACIÓN COMPLETA | Base sólida establecida y funcional |
   | 2025-10-24 | Comando `/h` para ayuda         | NUEVA FUNCIONALIDAD | Mejora UX - acceso rápido a comandos |
   | 2025-10-24 | Documentación README.md completa | DOCUMENTACIÓN      | Base de conocimiento establecida      |
@@ -102,14 +117,22 @@ description: |
   # Patrón de timestamp
   timestamp = datetime.now().strftime("[%d-%m-%Y | %H:%M]")
 
+  # Patrón de limpieza de pantalla (ANSI portable)
+  def clear_screen():
+      print("\033[2J\033[H", end="", flush=True)
+
   # Patrón de comandos especiales
   def handle_special_commands(user_input, file_path):
       if user_input == '/n':
           # Línea vacía
       elif user_input == '/n=':
           # Separador decorativo
+      elif user_input == '/r':
+          # Modo lectura
       elif user_input == '/h':
           # Mostrar ayuda
+      elif user_input == '/hide':
+          # Activar modo privacidad
       elif user_input == '/q':
           # Salir
   ```
@@ -210,7 +233,7 @@ description: |
   **Protocolo FUSION**:
 
   1. **Investigación**: Analizar impacto en arquitectura actual
-  2. **Diseño**: Mantener coherencia con comandos existentes (/n, /n=, /h, /q)
+  2. **Diseño**: Mantener coherencia con comandos existentes (/n, /n=, /r, /h, /hide, /q)
   3. **Implementación**: Añadir función `search_notes()` con paginación
   4. **Testing**: Verificar en Windows y Android
   5. **Documentación**: Actualizar README.md y help menu
@@ -255,7 +278,7 @@ description: |
   **Fusion Level**: OVERPOWERED  
   **Especialización**: noteZ Project Agent  
   **Memoria Extendida**: ACTIVA - Auto-actualización habilitada  
-  **Última actualización de memoria**: 2025-10-24 - Creación inicial del agente
+  **Última actualización de memoria**: 2025-11-27 - Modo Hide (Privacidad) implementado
 tools:
   - runCommands
   - runTasks
